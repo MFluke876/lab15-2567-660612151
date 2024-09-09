@@ -48,8 +48,14 @@ const schema = z
     }),
     hasCoupon: z.boolean(),
     coupon: z.string(),
-    password: z.string(),
-    confirmPassword: z.string(),
+    password: z
+      .string()
+      .min(6, { message: "Password must contain at least 6 characters" })
+      .max(12, { message: "Password must not exceed 12 characters" }),
+    confirmPassword: z
+      .string()
+      .min(6, { message:"Password must contain at least 6 characters" })
+      .max(12, {message: "Password must not exceed 12 characters" }),
   })
   .refine(
     //refine allows you check error in your own way
@@ -69,6 +75,12 @@ const schema = z
       message: "Invalid coupon code",
       path: ["coupon"],
     }
+  )
+  .refine((data) => data.password === data.confirmPassword,{
+    message: "Password does not match",
+    path: ["confirmPassword"],
+  }
+
   );
 
 export default function Home() {
@@ -96,10 +108,16 @@ export default function Home() {
     //TIP : get value of currently filled form with variable "form.values"
 
     if (form.values.plan === "funrun") price = 500;
+    if (form.values.plan === "mini") price = 800;
+    if (form.values.plan === "half") price = 1200;
+    if (form.values.plan === "full") price = 1500;
+
     //check the rest plans by yourself
     //TIP : check /src/app/libs/runningPlans.js
 
     //check discount here
+
+    if(form.values.hasCoupon == true && form.values.coupon === "CMU2023") price *=0.7;
 
     return price;
   };
@@ -115,7 +133,7 @@ export default function Home() {
 
         {/* add form */}
         <form onSubmit={form.onSubmit((v) => alert("See you at CMU Marathon"))}>
-          <Stack gap="sm">
+          <Stack gap="sm">  
             <Group grow align="start">
               <TextInput
                 label="First Name"
@@ -187,7 +205,7 @@ export default function Home() {
           </Stack>
         </form>
 
-        {/* <Footer year={2023} fullName="Chayanin Suatap" studentId="650610560" /> */}
+        {<Footer year={2024} fullName="Patchanop Rodklueng" studentId="660612151" />}
       </Container>
 
       <TermsAndCondsModal opened={opened} close={close} />
